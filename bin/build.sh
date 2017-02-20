@@ -14,6 +14,11 @@ fi
 cat ${REPO_BASE}/settings.py | sed -e "s#SECRET_KEY.*#SECRET_KEY = '$(openssl rand -base64 64 | tr -d '\n')'#" > ${REPO_BASE}/bitbake/lib/toaster/toastermain/settings.py
 
 cd ${REPO_BASE}/bitbake
-docker build $BUILD_ARGS -t trinitronx/yocto-bitbake-toaster:latest -f ../Dockerfile .
+cp ../Dockerfile ./Dockerfile
+# Set up requirements.txt for ONBUILD instructions to install
+ln -s toaster-requirements.txt requirements.txt
 
-docker run -ti -v $(pwd)/data:/data -p 3800:80 trinitronx/yocto-bitbake-toaster:latest
+docker build $BUILD_ARGS -t trinitronx/yocto-bitbake-toaster:latest .
+
+# -v $(pwd)/data:/data
+docker run -ti -p 3800:80 trinitronx/yocto-bitbake-toaster:latest
